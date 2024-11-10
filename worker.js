@@ -22,7 +22,7 @@ async function start() {
         console.log('Response from Python:', response.data);
 
         //send response to RabbitMQ
-        await channel2.sendToQueue(responseQueue, Buffer.from(JSON.stringify({ response, clientId })), { persistent: true });
+        await channel2.sendToQueue(responseQueue, Buffer.from(JSON.stringify({ response, clientId, query })), { persistent: true });
       } catch (error) {
         console.error('Error calling Python server:', error);
       }

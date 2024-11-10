@@ -7,6 +7,12 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const redis = require('redis');
+const redis_client = redis.createClient({ host: 'localhost', port: 6379 });
+
+redis_client.on('error', (err) => console.log('Redis Client Error', err));
+redis_client.connect();
+
 let channel, queue, channel2, responseQueue;
 
 // Store connections with clientId as the key
@@ -25,7 +31,10 @@ async function connectRabbitMQ() {
   // Listen for messages from the worker and send to clients
     channel2.consume(responseQueue, async (msg) => {
         if (msg !== null) {
-            const { response, clientId } = JSON.parse(msg.content.toString());
+            const { response, clientId, query } = JSON.parse(msg.content.toString());
+
+            await redis_client.set(query, response, { EX: 86400 });
+
             const ws = connections.get(clientId);
 
             if (ws && ws.readyState === WebSocket.OPEN) {
@@ -50,6 +59,13 @@ wss.on('connection', function connection(ws) {
     console.log('received: %s', message);
     const msg = JSON.parse(message);
     const { query } = msg;
+    
+    const cachedResponse = await redis_client.get(query);
+    if (cachedResponse) {
+        console.log('Cache hit');
+        ws.send(JSON.stringify({response: cachedResponse}));
+    }
+
     // Send message to RabbitMQ
     await channel.sendToQueue(queue, Buffer.from(JSON.stringify({ query, clientId })), { persistent: true });
   });
