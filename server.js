@@ -41,7 +41,7 @@ connectRabbitMQ().then(() => console.log('Connected to RabbitMQ')).catch(err => 
 
 // WebSocket connection
 wss.on('connection', function connection(ws) {
-    console.log('connected');
+    console.log('Client Connected');
     const clientId = ws._socket.remoteAddress + ':' + ws._socket.remotePort;
   // Store the connection with the unique clientId
   connections.set(clientId, ws);
