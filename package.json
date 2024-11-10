@@ -1,0 +1,19 @@
+{
+  "name": "chatbot-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js && node worker.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.4",
+    "axios": "^1.7.7",
+    "express": "^4.21.1",
+    "ws": "^8.18.0"
+  }
+}
